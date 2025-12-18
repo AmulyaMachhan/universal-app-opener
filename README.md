@@ -25,16 +25,32 @@ yarn add universal-app-opener
 ## Quick Start
 
 ```typescript
-import { generateDeepLink, detectOS } from "universal-app-opener";
+import { openLink } from "universal-app-opener";
 
-const result = generateDeepLink("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-console.log(result.ios); // vnd.youtube://watch?v=dQw4w9WgXcQ
-console.log(result.android); // intent://watch?v=...
+openLink("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
 ```
+
+That's it! The library automatically detects your platform and opens the appropriate app or web URL.
 
 ## Demo
 
 Try it out: **[Live Demo](https://mdsaban.github.io/universal-app-opener/)**
+
+## Platform Support
+
+### ✅ Implemented
+
+- [x] **YouTube** - Videos (`youtube.com/watch`, `youtu.be`)
+- [x] **LinkedIn** - Profiles (`linkedin.com/in/*`)
+
+### 🚧 Coming Soon
+
+- [ ] **Instagram** - Posts, profiles, reels
+- [ ] **Twitter/X** - Tweets, profiles
+- [ ] **Facebook** - Posts, profiles, pages
+- [ ] **TikTok** - Videos, profiles
+- [ ] **Spotify** - Songs, albums, playlists, artists
+- [ ] **WhatsApp** - Chat links, group invites
 
 ## Documentation
 

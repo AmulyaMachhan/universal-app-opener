@@ -18,86 +18,76 @@ yarn add universal-app-opener
 
 ## Usage
 
-### Basic Example
+### One-Click Open (Recommended)
+
+The simplest way to open a link - automatically detects platform and opens the appropriate app or web URL:
 
 ```typescript
-import { generateDeepLink, detectOS } from 'universal-app-opener';
+import { openLink } from 'universal-app-opener';
 
-const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
-const result = generateDeepLink(url);
-
-console.log(result);
-// {
-//   webUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-//   ios: 'vnd.youtube://watch?v=dQw4w9WgXcQ',
-//   android: 'intent://watch?v=dQw4w9WgXcQ#Intent;scheme=vnd.youtube;package=com.google.android.youtube;end',
-//   platform: 'youtube'
-// }
+openLink('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
 ```
 
-### Opening Deep Links Based on Platform
+**With options:**
 
 ```typescript
-import { generateDeepLink, detectOS } from 'universal-app-opener';
+import { openLink } from 'universal-app-opener';
 
-function openLink(url: string) {
-  const os = detectOS();
-  const result = generateDeepLink(url);
-  
-  if (os === 'ios' && result.ios) {
-    window.location.href = result.ios;
-  } else if (os === 'android' && result.android) {
-    window.location.href = result.android;
-  } else {
-    window.open(result.webUrl, '_blank');
-  }
-}
-
-openLink('https://www.linkedin.com/in/iamsaban/');
+openLink('https://www.linkedin.com/in/iamsaban/', {
+  fallbackToWeb: true,    // Fallback to web if app not installed (default: true)
+  fallbackDelay: 2500,   // Delay before fallback in ms (default: 2500)
+  openInNewTab: false    // Open web URL in new tab (default: false)
+});
 ```
 
-### With Fallback to Web
+### Advanced Usage
+
+If you need more control, you can use the lower-level APIs:
 
 ```typescript
 import { generateDeepLink, detectOS } from 'universal-app-opener';
 
-function openLinkWithFallback(url: string) {
-  const os = detectOS();
-  const result = generateDeepLink(url);
-  
-  let deepLink: string | null = null;
-  
-  if (os === 'ios' && result.ios) {
-    deepLink = result.ios;
-  } else if (os === 'android' && result.android) {
-    deepLink = result.android;
-  }
-  
-  if (deepLink) {
-    window.location.href = deepLink;
-    setTimeout(() => {
-      window.location.href = result.webUrl;
-    }, 2500);
-  } else {
-    window.open(result.webUrl, '_blank');
-  }
+const result = generateDeepLink('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+const os = detectOS();
+
+if (os === 'ios' && result.ios) {
+  window.location.href = result.ios;
+} else if (os === 'android' && result.android) {
+  window.location.href = result.android;
+} else {
+  window.open(result.webUrl, '_blank');
 }
 ```
 
 ### CommonJS Usage
 
 ```javascript
-const { generateDeepLink, detectOS } = require('universal-app-opener');
+const { openLink, generateDeepLink } = require('universal-app-opener');
 
-const result = generateDeepLink('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
-console.log(result.ios);
+openLink('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
 ```
 
 ## API Reference
 
+### `openLink(url: string, options?: OpenLinkOptions): void`
+
+Opens a URL in the appropriate app or browser. Automatically detects platform and handles deep linking.
+
+**Parameters:**
+- `url` (string): The web URL to open (YouTube or LinkedIn)
+- `options` (optional): Configuration object
+  - `fallbackToWeb` (boolean): Fallback to web URL if app not installed (default: `true`)
+  - `fallbackDelay` (number): Delay in milliseconds before fallback (default: `2500`)
+  - `openInNewTab` (boolean): Open web URL in new tab (default: `false`)
+
+**Example:**
+```typescript
+openLink('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+```
+
 ### `generateDeepLink(url: string): DeepLinkResult`
 
-Converts a web URL into platform-specific deep links.
+Converts a web URL into platform-specific deep links. Returns the deep link data without opening it.
 
 **Parameters:**
 - `url` (string): The web URL to convert (YouTube or LinkedIn)

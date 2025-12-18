@@ -58,3 +58,48 @@ export function detectOS(): 'ios' | 'android' | 'desktop' {
   return 'desktop';
 }
 
+export interface OpenLinkOptions {
+  fallbackToWeb?: boolean;
+  fallbackDelay?: number;
+  openInNewTab?: boolean;
+}
+
+export function openLink(url: string, options: OpenLinkOptions = {}): void {
+  const {
+    fallbackToWeb = true,
+    fallbackDelay = 2500,
+    openInNewTab = false
+  } = options;
+  
+  const os = detectOS();
+  const result = generateDeepLink(url);
+  
+  let deepLink: string | null = null;
+  
+  if (os === 'ios' && result.ios) {
+    deepLink = result.ios;
+  } else if (os === 'android' && result.android) {
+    deepLink = result.android;
+  }
+  
+  if (deepLink && (os === 'ios' || os === 'android')) {
+    window.location.href = deepLink;
+    
+    if (fallbackToWeb) {
+      setTimeout(() => {
+        if (openInNewTab) {
+          window.open(result.webUrl, '_blank');
+        } else {
+          window.location.href = result.webUrl;
+        }
+      }, fallbackDelay);
+    }
+  } else {
+    if (openInNewTab) {
+      window.open(result.webUrl, '_blank');
+    } else {
+      window.location.href = result.webUrl;
+    }
+  }
+}
+

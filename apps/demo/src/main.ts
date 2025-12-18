@@ -1,4 +1,4 @@
-import { generateDeepLink, detectOS } from 'universal-app-opener';
+import { generateDeepLink, openLink } from 'universal-app-opener';
 
 const urlInput = document.getElementById('urlInput') as HTMLInputElement;
 const generateBtn = document.getElementById('generateBtn') as HTMLButtonElement;
@@ -10,29 +10,11 @@ const exampleLinks = document.querySelectorAll('.example-link');
 
 let currentResult: ReturnType<typeof generateDeepLink> | null = null;
 
-function openLink(url: string) {
-  const os = detectOS();
+function handleLinkClick(url: string) {
   const result = generateDeepLink(url);
   currentResult = result;
-  
-  let deepLink: string | null = null;
-  
-  if (os === 'ios' && result.ios) {
-    deepLink = result.ios;
-  } else if (os === 'android' && result.android) {
-    deepLink = result.android;
-  }
-  
-  if (deepLink && (os === 'ios' || os === 'android')) {
-    window.location.href = deepLink;
-    setTimeout(() => {
-      window.location.href = result.webUrl;
-    }, 2500);
-  } else {
-    window.open(result.webUrl, '_blank');
-  }
-  
   displayResult(result);
+  openLink(url, { fallbackToWeb: true, fallbackDelay: 2500 });
 }
 
 function displayResult(result: ReturnType<typeof generateDeepLink>) {
@@ -45,7 +27,7 @@ exampleLinks.forEach(link => {
     e.preventDefault();
     const url = link.getAttribute('data-url');
     if (url) {
-      openLink(url);
+      handleLinkClick(url);
     }
   });
 });
