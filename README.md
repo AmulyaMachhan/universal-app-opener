@@ -52,9 +52,16 @@ Try it out: **[Live Demo](https://mdsaban.github.io/universal-app-opener/)**
 - [ ] **Spotify** - Songs, albums, playlists, artists
 - [ ] **WhatsApp** - Chat links, group invites
 
-## Documentation
+## Documentation & API Reference
 
-For detailed usage, API reference, and examples, see the [package documentation](./packages/core/README.md).
+For full usage instructions, API details, and advanced examples, see the [Core Package README](./packages/core/README.md).
+
+## Contributing
+
+If you're interested in contributing in the beta phase, you can join our private Discord community: [Discord Invite](https://hub.mdsaban.com/?ref=secret)
+
+For contribution guidelines, development workflow, and instructions to add new platforms, see [CONTRIBUTING.md](./packages/core/CONTRIBUTING.md).
+
 
 ## Goal
 
@@ -100,9 +107,3 @@ To build all packages:
 ```bash
 pnpm build
 ```
-
-## Contributing
-
-Contributions are currently closed as we're setting up the project infrastructure. A detailed contribution guide will be available in the coming days.
-
-If you're interested in joining the beta phase, you can join our private Discord community: [Discord Invite](https://hub.mdsaban.com/?ref=secret)

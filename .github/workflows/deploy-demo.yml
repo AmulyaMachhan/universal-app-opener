@@ -7,12 +7,6 @@ on:
     paths:
       - 'apps/demo/**'
       - '.github/workflows/deploy-demo.yml'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'apps/demo/**'
-      - '.github/workflows/deploy-demo.yml'
 
 permissions:
   contents: read

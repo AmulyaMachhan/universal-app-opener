@@ -1,0 +1,64 @@
+name: Publish to NPM
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    # Only run if the release tag starts with 'core-v'
+    if: startsWith(github.ref_name, 'core-v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write 
+      id-token: write # Required for OIDC/trusted publishing
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: main 
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Upgrade npm to v11+ (Required for OIDC)
+        run: npm install -g npm@latest
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Sync package.json with Release Tag
+        run: |
+          # Clean the tag: "core-v1.1.0" -> "1.1.0"
+          TAG_VERSION=${GITHUB_REF_NAME#core-v}
+          echo "Release tag is $TAG_VERSION"
+          
+          cd packages/core
+          
+          # Update version in package.json
+          npm version $TAG_VERSION --no-git-tag-version --allow-same-version
+
+      - name: Build Package
+        run: pnpm build
+
+      - name: Publish to NPM with OIDC
+        run: |
+          cd packages/core
+          npm publish --provenance --access public
+
+      - name: Commit Version Bump
+        if: success()
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(core): sync version to ${{ github.ref_name }}"
+          branch: main
+          file_pattern: 'packages/core/package.json'
