@@ -1,5 +1,7 @@
-import { linkedinHandler, unknownHandler, youtubeHandler } from "./handlers";
+import { linkedinHandler, unknownHandler, youtubeHandler } from "./platforms";
 import { DeepLinkResult } from "./types";
+
+export * from './types';
 
 const handlers = [
   youtubeHandler,
