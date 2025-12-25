@@ -26,10 +26,10 @@ export const linkedinHandler: DeepLinkHandler = {
     ];
 
     for (const [type, regex] of patterns) {
-      const m = url.match(regex);
-      if (m) {
+      const matchResult = url.match(regex);
+      if (matchResult) {
         // Normalize into a predictable match array
-        return [m[0], type, m[1]] as RegExpMatchArray;
+        return [matchResult[0], type, matchResult[1]] as RegExpMatchArray;
       }
     }
 
