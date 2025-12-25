@@ -1,35 +1,73 @@
 import { DeepLinkHandler, DeepLinkResult } from '../types'
 
+
+/**
+ * Regex patterns to detect supported LinkedIn URL types
+ */
 const patterns: Array<[type: string, regex: RegExp]> = [
-  // Profile
   ['profile', /linkedin\.com\/in\/([^/?#]+)/],
-
-  // Post (posts)
   ['post', /linkedin\.com\/posts\/([^/?#]+)/],
-
-  // Post (feed update)
   ['post', /linkedin\.com\/feed\/update\/(?:urn:li:activity:)?([^/?#]+)/],
-
-  // Company
   ['company', /linkedin\.com\/company\/([^/?#]+)/],
-
-  // Job
   ['job', /linkedin\.com\/jobs\/view\/([^/?#]+)/],
 ]
 
 /**
- * Match result:
- * match[0] => linkedin.com/in/{id}
- * match[1] => type
- * match[2] => id
+ * Helper to assemble a valid deeplink result object
  */
+const buildResult = (
+  webUrl: string,
+  ios: string | null,
+  android: string | null
+): DeepLinkResult => ({
+  webUrl,
+  ios,
+  android,
+  platform: 'linkedin',
+})
+
+/**
+ * Maps each recognized link type to its deeplink URL formats
+ */
+const builders: Record<string, (id: string, webUrl: string) => DeepLinkResult> = {
+  profile: (id, webUrl) =>
+    buildResult(
+      webUrl,
+      `linkedin://in/${id}`,
+      `intent://in/${id}#Intent;scheme=linkedin;package=com.linkedin.android;end`
+    ),
+
+  post: (id, webUrl) =>
+    buildResult(
+      webUrl,
+      `linkedin://urn:li:activity:${id}`,
+      `intent://urn:li:activity:${id}#Intent;scheme=linkedin;package=com.linkedin.android;end`
+    ),
+
+  company: (id, webUrl) =>
+    buildResult(
+      webUrl,
+      `linkedin://company/${id}`,
+      `intent://company/${id}#Intent;scheme=linkedin;package=com.linkedin.android;end`
+    ),
+
+  job: (id, webUrl) =>
+    buildResult(
+      webUrl,
+      `linkedin://job/${id}`,
+      `intent://job/${id}#Intent;scheme=linkedin;package=com.linkedin.android;end`
+    ),
+}
+
+/**
+* generates corresponding deeplink metadata based on url types
+*/
 export const linkedinHandler: DeepLinkHandler = {
   match: (url) => {
     for (const [type, regex] of patterns) {
       const matchResult = url.match(regex)
-      if (matchResult) {
+      if (matchResult)
         return [matchResult[0], type, matchResult[1]] as RegExpMatchArray
-      }
     }
     return null
   },
@@ -38,38 +76,9 @@ export const linkedinHandler: DeepLinkHandler = {
     const type = match[1]
     const id = match[2]
 
-    const builderMap: Record<string, () => DeepLinkResult> = {
-      profile: () => ({
-        webUrl,
-        ios: `linkedin://in/${id}`,
-        android: `intent://in/${id}#Intent;scheme=linkedin;package=com.linkedin.android;end`,
-        platform: 'linkedin',
-      }),
-
-      post: () => ({
-        webUrl,
-        ios: `linkedin://urn:li:activity:${id}`,
-        android: `intent://urn:li:activity:${id}#Intent;scheme=linkedin;package=com.linkedin.android;end`,
-        platform: 'linkedin',
-      }),
-
-      company: () => ({
-        webUrl,
-        ios: `linkedin://company/${id}`,
-        android: `intent://company/${id}#Intent;scheme=linkedin;package=com.linkedin.android;end`,
-        platform: 'linkedin',
-      }),
-
-      job: () => ({
-        webUrl,
-        ios: `linkedin://job/${id}`,
-        android: `intent://job/${id}#Intent;scheme=linkedin;package=com.linkedin.android;end`,
-        platform: 'linkedin',
-      }),
-    }
-
-    return builderMap[type]
-      ? builderMap[type]()
-      : { webUrl, ios: null, android: null, platform: 'linkedin' }
+    const builder = builders[type]
+    return builder
+      ? builder(id, webUrl)
+      : buildResult(webUrl, null, null)
   },
 }
